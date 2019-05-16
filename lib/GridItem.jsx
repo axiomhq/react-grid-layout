@@ -42,7 +42,6 @@ type Props = {
   useCSSTransforms?: boolean,
   usePercentages?: boolean,
   lockedRatio: number,
-  fontSizeRatio: number,
 
   className: string,
   style?: Object,
@@ -85,7 +84,6 @@ export default class GridItem extends React.Component<Props, State> {
     maxRows: PropTypes.number.isRequired,
     containerPadding: PropTypes.array.isRequired,
     lockedRatio: PropTypes.number.isRequired,
-    fontSizeRatio: PropTypes.number.isRequired,
 
     // These are all in grid units
     x: PropTypes.number.isRequired,
@@ -157,8 +155,7 @@ export default class GridItem extends React.Component<Props, State> {
     minW: 1,
     maxH: Infinity,
     maxW: Infinity,
-    lockedRatio: 0,
-    fontSizeRatio: 1 / 20
+    lockedRatio: 0
   };
 
   state: State = {
@@ -330,13 +327,7 @@ export default class GridItem extends React.Component<Props, State> {
    * @return {Object}     Style object.
    */
   createStyle(pos: Position): { [key: string]: ?string } {
-    const {
-      usePercentages,
-      containerWidth,
-      useCSSTransforms,
-      lockedRatio,
-      fontSizeRatio
-    } = this.props;
+    const { usePercentages, containerWidth, useCSSTransforms } = this.props;
 
     let style;
     // CSS Transforms support (default)
@@ -352,11 +343,6 @@ export default class GridItem extends React.Component<Props, State> {
         style.left = perc(pos.left / containerWidth);
         style.width = perc(pos.width / containerWidth);
       }
-    }
-    if (lockedRatio) {
-      style.fontSize = `${Math.round(
-        Math.min(pos.width, pos.height) * fontSizeRatio
-      )}px`;
     }
 
     return style;
