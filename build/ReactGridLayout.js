@@ -469,8 +469,7 @@ var ReactGridLayout = (function(_React$Component) {
       rowHeight = _props4.rowHeight,
       maxRows = _props4.maxRows,
       useCSSTransforms = _props4.useCSSTransforms,
-      lockedRatio = _props4.lockedRatio,
-      fontSizeRatio = _props4.fontSizeRatio;
+      lockedRatio = _props4.lockedRatio;
 
     // {...this.state.activeDrag} is pretty slow, actually
 
@@ -490,7 +489,6 @@ var ReactGridLayout = (function(_React$Component) {
         maxRows: maxRows,
         rowHeight: rowHeight,
         lockedRatio: lockedRatio,
-        fontSizeRatio: fontSizeRatio,
         isDraggable: false,
         isResizable: false,
         useCSSTransforms: useCSSTransforms
@@ -521,8 +519,7 @@ var ReactGridLayout = (function(_React$Component) {
       useCSSTransforms = _props5.useCSSTransforms,
       draggableCancel = _props5.draggableCancel,
       draggableHandle = _props5.draggableHandle,
-      lockedRatio = _props5.lockedRatio,
-      fontSizeRatio = _props5.fontSizeRatio;
+      lockedRatio = _props5.lockedRatio;
     var mounted = this.state.mounted;
 
     // Parse 'static'. Any properties defined directly on the grid item will take precedence.
@@ -543,7 +540,6 @@ var ReactGridLayout = (function(_React$Component) {
         containerPadding: containerPadding || margin,
         maxRows: maxRows,
         lockedRatio: lockedRatio,
-        fontSizeRatio: fontSizeRatio,
         rowHeight: rowHeight,
         cancel: draggableCancel,
         handle: draggableHandle,
@@ -679,8 +675,6 @@ ReactGridLayout.propTypes = {
   useCSSTransforms: _propTypes2.default.bool,
   // Keep the ratio of gridItems : calculated by height / width
   lockedRatio: _propTypes2.default.number,
-  // calculated with the gridItem width
-  fontSizeRatio: _propTypes2.default.number,
 
   //
   // Callbacks
@@ -741,7 +735,6 @@ ReactGridLayout.defaultProps = {
   isResizable: true,
   useCSSTransforms: true,
   lockedRatio: 0,
-  fontSizeRatio: 1 / 20,
   verticalCompact: true,
   compactType: "vertical",
   preventCollision: false,

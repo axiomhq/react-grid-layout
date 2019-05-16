@@ -297,9 +297,7 @@ var GridItem = (function(_React$Component) {
     var _props5 = this.props,
       usePercentages = _props5.usePercentages,
       containerWidth = _props5.containerWidth,
-      useCSSTransforms = _props5.useCSSTransforms,
-      lockedRatio = _props5.lockedRatio,
-      fontSizeRatio = _props5.fontSizeRatio;
+      useCSSTransforms = _props5.useCSSTransforms;
 
     var style = void 0;
     // CSS Transforms support (default)
@@ -315,10 +313,6 @@ var GridItem = (function(_React$Component) {
         style.left = (0, _utils.perc)(pos.left / containerWidth);
         style.width = (0, _utils.perc)(pos.width / containerWidth);
       }
-    }
-    if (lockedRatio) {
-      style.fontSize =
-        Math.round(Math.min(pos.width, pos.height) * fontSizeRatio) + "px";
     }
 
     return style;
@@ -570,7 +564,6 @@ GridItem.propTypes = {
   maxRows: _propTypes2.default.number.isRequired,
   containerPadding: _propTypes2.default.array.isRequired,
   lockedRatio: _propTypes2.default.number.isRequired,
-  fontSizeRatio: _propTypes2.default.number.isRequired,
 
   // These are all in grid units
   x: _propTypes2.default.number.isRequired,
@@ -641,7 +634,6 @@ GridItem.defaultProps = {
   minW: 1,
   maxH: Infinity,
   maxW: Infinity,
-  lockedRatio: 0,
-  fontSizeRatio: 1 / 20
+  lockedRatio: 0
 };
 exports.default = GridItem;

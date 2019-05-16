@@ -62,7 +62,6 @@ export type Props = {
   preventCollision: boolean,
   useCSSTransforms: boolean,
   lockedRatio: number,
-  fontSizeRatio: number,
   colWidth: number,
 
   // Callbacks
@@ -160,8 +159,6 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     useCSSTransforms: PropTypes.bool,
     // Keep the ratio of gridItems : calculated by height / width
     lockedRatio: PropTypes.number,
-    // calculated with the gridItem width
-    fontSizeRatio: PropTypes.number,
 
     //
     // Callbacks
@@ -223,7 +220,6 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     isResizable: true,
     useCSSTransforms: true,
     lockedRatio: 0,
-    fontSizeRatio: 1 / 20,
     verticalCompact: true,
     compactType: "vertical",
     preventCollision: false,
@@ -564,8 +560,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
       rowHeight,
       maxRows,
       useCSSTransforms,
-      lockedRatio,
-      fontSizeRatio
+      lockedRatio
     } = this.props;
 
     // {...this.state.activeDrag} is pretty slow, actually
@@ -584,7 +579,6 @@ export default class ReactGridLayout extends React.Component<Props, State> {
         maxRows={maxRows}
         rowHeight={rowHeight}
         lockedRatio={lockedRatio}
-        fontSizeRatio={fontSizeRatio}
         isDraggable={false}
         isResizable={false}
         useCSSTransforms={useCSSTransforms}
@@ -615,8 +609,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
       useCSSTransforms,
       draggableCancel,
       draggableHandle,
-      lockedRatio,
-      fontSizeRatio
+      lockedRatio
     } = this.props;
     const { mounted } = this.state;
 
@@ -636,7 +629,6 @@ export default class ReactGridLayout extends React.Component<Props, State> {
         containerPadding={containerPadding || margin}
         maxRows={maxRows}
         lockedRatio={lockedRatio}
-        fontSizeRatio={fontSizeRatio}
         rowHeight={rowHeight}
         cancel={draggableCancel}
         handle={draggableHandle}
