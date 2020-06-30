@@ -29,6 +29,8 @@ RGL is React-only and does not require jQuery.
 - [Grid Layout Props](#grid-layout-props)
 - [Responsive Grid Layout Props](#responsive-grid-layout-props)
 - [Grid Item Props](#grid-item-props)
+- [User Recipes](../../wiki/Users-recipes)
+- [Performance](#performance)
 - [Contribute](#contribute)
 - [TODO List](#todo-list)
 
@@ -49,6 +51,7 @@ RGL is React-only and does not require jQuery.
 1. [Prevent Collision](https://strml.github.io/react-grid-layout/examples/12-prevent-collision.html)
 1. [Error Case](https://strml.github.io/react-grid-layout/examples/13-error-case.html)
 1. [Toolbox](https://strml.github.io/react-grid-layout/examples/14-toolbox.html)
+1. [Drag From Outside](https://strml.github.io/react-grid-layout/examples/15-drag-from-outside.html)
 
 #### Projects Using React-Grid-Layout
 
@@ -63,6 +66,9 @@ RGL is React-only and does not require jQuery.
 - [ez-Dashing](https://github.com/ylacaute/ez-Dashing)
 - [Kibana](https://www.elastic.co/products/kibana)
 - [Graphext](https://graphext.com/)
+- [Monday](https://support.monday.com/hc/en-us/articles/360002187819-What-are-the-Dashboards-)
+- [Quadency](https://quadency.com/)
+- [Hakkiri](https://www.hakkiri.io)
 
 *Know of others? Create a PR to let me know!*
 
@@ -84,6 +90,7 @@ RGL is React-only and does not require jQuery.
 
 |Version         | Compatibility    |
 |----------------|------------------|
+| >= 0.17.0      | React 0.16       |
 | >= 0.11.3      | React 0.14 & v15 |
 | >= 0.10.0      | React 0.14       |
 | 0.8. - 0.9.2   | React 0.13       |
@@ -119,7 +126,7 @@ import GridLayout from 'react-grid-layout';
 class MyFirstGrid extends React.Component {
   render() {
     // layout is an array of objects, see the demo for more complete usage
-    var layout = [
+    const layout = [
       {i: 'a', x: 0, y: 0, w: 1, h: 2, static: true},
       {i: 'b', x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4},
       {i: 'c', x: 4, y: 0, w: 1, h: 2}
@@ -168,7 +175,7 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 class MyResponsiveGrid extends React.Component {
   render() {
     // {lg: layout1, md: layout2, ...}
-    var layouts = getLayoutsFromSomewhere();
+    const layouts = getLayoutsFromSomewhere();
     return (
       <ResponsiveGridLayout className="layout" layouts={layouts}
         breakpoints={{lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0}}
@@ -284,6 +291,14 @@ containerPadding: ?[number, number] = margin,
 // if you like.
 rowHeight: ?number = 150,
 
+// Configuration of a dropping element. Dropping element is a "virtual" element
+// which appears when you drag over some element from outside.
+// It can be changed by passing specific parameters:
+//  i - id of an element
+//  w - width of an element
+//  h - height of an element
+droppingItem?: { i: string, w: number, h: number }
+
 //
 // Flags
 //
@@ -292,10 +307,25 @@ isResizable: ?boolean = true,
 // Uses CSS3 translate() instead of position top/left.
 // This makes about 6x faster paint performance
 useCSSTransforms: ?boolean = true,
+// If parent DOM node of ResponsiveReactGridLayout or ReactGridLayout has "transform: scale(n)" css property,
+// we should set scale coefficient to avoid render artefacts while dragging.
+transformScale: ?number = 1,
 
 // If true, grid items won't change position when being
 // dragged over.
 preventCollision: ?boolean = false;
+
+// If true, droppable elements (with `draggable={true}` attribute)
+// can be dropped on the grid. It triggers "onDrop" callback
+// with position and event object as parameters.
+// It can be useful for dropping an element in a specific position
+//
+// NOTE: In case of using Firefox you should add
+// `onDragStart={e => e.dataTransfer.setData('text/plain', '')}` attribute
+// along with `draggable={true}` otherwise this feature will work incorrect.
+// onDragStart attribute is required for Firefox for a dragging initialization
+// @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+isDroppable: ?boolean = false
 
 //
 // Callbacks
@@ -323,7 +353,12 @@ onResizeStart: ItemCallback,
 // Calls when resize movement happens.
 onResize: ItemCallback,
 // Calls when resize is complete.
-onResizeStop: ItemCallback
+onResizeStop: ItemCallback,
+// Calls when some element has been dropped
+onDrop: (elemParams: { x: number, y: number, w: number, h: number, e: Event }) => void,
+
+// Ref for getting a reference for the wrapping div.
+innerRef: ?React.Ref
 ```
 
 ### Responsive Grid Layout Props
@@ -338,6 +373,15 @@ breakpoints: ?Object = {lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0},
 
 // # of cols. This is a breakpoint -> cols map, e.g. {lg: 12, md: 10, ...}
 cols: ?Object = {lg: 12, md: 10, sm: 6, xs: 4, xxs: 2},
+
+
+// margin (in pixels). Can be specified either as horizontal and vertical margin, e.g. `[10, 10]` or as a breakpoint -> margin map, e.g. `{lg: [10, 10], md: [10, 10], ...}.
+margin: [number, number] | {[breakpoint: $Keys<breakpoints>]: [number, number]}
+
+
+// containerPadding (in pixels). Can be specified either as horizontal and vertical padding, e.g. `[10, 10]` or as a breakpoint -> containerPadding map, e.g. `{lg: [10, 10], md: [10, 10], ...}.
+containerPadding: [number, number] | {[breakpoint: $Keys<breakpoints>]: [number, number]}
+
 
 // layouts is an object mapping breakpoints to layouts.
 // e.g. {lg: Layout, md: Layout, ...}
@@ -376,7 +420,7 @@ are out of range.
 
 Any `<GridItem>` properties defined directly will take precedence over globally-set options. For
 example, if the layout has the property `isDraggable: false`, but the grid item has the prop `isDraggable: true`, the item
-will be draggable.
+will be draggable, even if the item is marked `static: true`.
 
 ```js
 {
@@ -402,6 +446,42 @@ will be draggable.
   isResizable: ?boolean = true
 }
 ```
+
+### Performance
+
+`<ReactGridLayout>` has [an optimized `shouldComponentUpdate` implementation](lib/ReactGridLayout.jsx), but it relies on the user memoizing the `children` array:
+
+
+```js
+// lib/ReactGridLayout.jsx
+// ...
+shouldComponentUpdate(nextProps: Props, nextState: State) {
+  return (
+    // NOTE: this is almost always unequal. Therefore the only way to get better performance
+    // from SCU is if the user intentionally memoizes children. If they do, and they can
+    // handle changes properly, performance will increase.
+    this.props.children !== nextProps.children ||
+    !fastRGLPropsEqual(this.props, nextProps, isEqual) ||
+    !isEqual(this.state.activeDrag, nextState.activeDrag)
+  );
+}
+// ...
+```
+
+If you memoize your children, you can take advantage of this, and reap faster rerenders. For example:
+
+```js
+function MyGrid(props) {
+  const children = React.useMemo(() => {
+    return new Array(props.count).fill(undefined).map((val, idx) => {
+      return <div key={idx} data-grid={{x: idx, y: 1, w: 1, h: 1}} />;
+    });
+  }, [props.count]);
+  return <ReactGridLayout cols={12}>{children}</ReactGridLayout>;
+}
+```
+
+Because the `children` prop doesn't change between rerenders, updates to `<MyGrid>` won't result in new renders, improving performance.
 
 ## Contribute
 
