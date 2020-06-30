@@ -4,3 +4,8 @@ dist/*
 !dist/*.html
 npm-debug.log
 .idea
+# Ignore built example files
+examples/*.html
+examples/*.js
+!examples/generate.js
+!examples/vars.js
